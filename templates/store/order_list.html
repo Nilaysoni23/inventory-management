@@ -1,0 +1,142 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Order List{% endblock title %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <div class="breadcrumbs-inner">
+        <div class="row m-0">
+            <div class="col-sm-4">
+                <div class="page-header float-left">
+                    <div class="page-title">
+                        <h1>Dashboard</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="page-header float-right">
+                    <div class="page-title">
+                        <ol class="breadcrumb text-right">
+                            <li><a href="#">Dashboard</a></li>
+                            <li><a href="#">Order</a></li>
+                            <li class="active">List</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock breadcrumbs %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="box-title">Order List </h4>
+            </div>
+            <div class="card-body--">
+                <div class="table-stats order-table ov-h">
+                    <table class="table ">
+                        <thead>
+                            <tr>
+                                <th class="serial">#</th>
+                                <th>Supplier</th>
+                                <th>Product</th>
+                                <th>Design</th>
+                                <th>Color</th>
+                                <th>Buyer</th>
+                                <th>Season</th>
+                                <th>Drop</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if object_list %}
+                            {% for order in object_list %}
+                            <tr>
+                                <td class="serial">{{ forloop.counter }}</td>
+                                <td>{{ order.supplier }}</td>
+                                <td>{{ order.product }}</td>
+                                <td>{{ order.design }}</td>
+                                <td>{{ order.color }}</td>
+                                <td>{{ order.buyer }}</td>
+                                <td>{{ order.season }}</td>
+                                <td>{{ order.drop }}</td>
+                                <td>{{ order.created_date }}</td>
+                                <td>
+                                    {% if request.user.is_staff or request.user.is_superuser or request.user.is_supplier and order.supplier.user == request.user %}
+                                        <form method="post" action="{% url 'update-order-status' order.pk %}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                            {% csrf_token %}
+                                            <select name="status" class="form-control form-control-sm">
+                                                {% for val,label in status_choices %}
+                                                    <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+                                            <span class="badge status-badge" data-status="{{ order.status }}">{{ order.status }}</span>
+                                        </form>
+                                    {% else %}
+                                        {% if order.status == 'pending' %}
+                                            <span class="badge badge-warning">{{ order.status }}</span>
+                                        {% elif order.status == 'done' %}
+                                            <span class="badge badge-success">{{ order.status }}</span>
+                                        {% elif order.status == 'cancelled' %}
+                                            <span class="badge badge-danger">{{ order.status }}</span>
+                                        {% else %}
+                                            <span class="badge badge-info">{{ order.status }}</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                                <tr><td colspan="10">No Order Data</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div> <!-- /.table-stats -->
+            </div>
+        </div> <!-- /.card -->
+    </div>  <!-- /.col-lg-8 -->
+
+    
+</div>
+{% endblock content %}
+
+{% block extra_scripts %}
+<script>
+// Map status value to bootstrap badge class
+const statusClass = {
+    'pending': 'badge-warning',
+    'done': 'badge-success',
+    'cancelled': 'badge-danger'
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    // initialize badges for admin forms
+    document.querySelectorAll('form[action*="update-order-status"]').forEach(function(form){
+        const select = form.querySelector('select[name="status"]');
+        const badge = form.querySelector('.status-badge');
+        if(!select || !badge) return;
+
+        function updateBadge(val){
+            const cls = statusClass[val] || 'badge-info';
+            // remove existing badge- classes
+            badge.className = 'status-badge badge badge-sm ' + cls;
+            badge.textContent = val;
+        }
+
+        // initial set
+        updateBadge(select.value);
+
+        // live update on change
+        select.addEventListener('change', function(e){
+            updateBadge(e.target.value);
+        });
+    });
+});
+</script>
+{% endblock extra_scripts %}

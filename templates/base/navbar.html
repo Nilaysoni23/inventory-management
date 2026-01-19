@@ -1,0 +1,47 @@
+{% load static %}
+
+<header id="header" class="header">
+    <div class="top-left">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">
+                <img src="{% static 'images/logo_1.png' %}" alt="Logo">
+            </a>
+            <a class="navbar-brand hidden" href="/">
+                <img src="{% static 'images/logo2.png' %}" alt="Logo">
+            </a>
+            <a id="menuToggle" class="menutoggle">
+                <i class="fa fa-bars"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="top-right">
+        <div class="header-menu">
+
+            {% if user.is_authenticated %}
+            <div class="user-area dropdown float-right">
+                <a href="#" class="dropdown-toggle active"
+                   data-toggle="dropdown"
+                   aria-haspopup="true"
+                   aria-expanded="false"
+                   style="color:#333; font-weight:600;">
+                    
+                    <i class="fa fa-user-circle"></i>
+                     {{ user.get_full_name|default:user.username }}
+                </a>
+
+                <div class="user-menu dropdown-menu">
+                    <a class="nav-link" href="{% url 'logout' %}">
+                        <i class="fa fa-sign-out"></i> Logout
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <a class="nav-link float-right" href="{% url 'login' %}">
+                <i class="fa fa-sign-in"></i> Login
+            </a>
+            {% endif %}
+
+        </div>
+    </div>
+</header>
