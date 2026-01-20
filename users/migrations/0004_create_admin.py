@@ -7,6 +7,7 @@ def create_admin_user(apps, schema_editor):
 
     if not User.objects.filter(email="admin@example.com").exists():
         User.objects.create(
+            username="admin",
             email="admin@example.com",
             password=make_password("admin123"),  # ✅ hash manually
             is_staff=True,
