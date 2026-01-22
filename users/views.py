@@ -7,6 +7,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
 from .forms import LoginForm, RegistrationForm
+from store.models import Buyer
 
 
 def login_page(request):
@@ -58,6 +59,8 @@ def register_page(request):
             user = User.objects.create_user(username=username, email=email, password=password)
             user.is_buyer = True
             user.save()
+            # create Buyer object
+            Buyer.objects.create(user=user, name=username, address='')
             # don't auto-login; redirect to login page so the user can sign in
             return redirect('login')
 

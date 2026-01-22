@@ -26,8 +26,7 @@ SECRET_KEY = 'k2z9po4i#n+1p(^ny1el2c!om(^-l+_%&ob0azk0-ike*-)81e'
 DEBUG = False
 
 ALLOWED_HOSTS = ['.onrender.com']
-
-
+# ALLOWED_HOSTS = ['127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [

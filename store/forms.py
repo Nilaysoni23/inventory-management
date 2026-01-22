@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Season, Drop, Product, Order, Delivery
+from .models import Season, Drop, Product, Order, Delivery, Buyer
 
 
 class SupplierForm(forms.Form):
@@ -184,6 +184,12 @@ class ProductForm(forms.ModelForm):
 
 
 class OrderForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and user.is_buyer:
+            self.fields['buyer'].queryset = Buyer.objects.filter(user=user)
+
     class Meta:
         model = Order
         fields = [

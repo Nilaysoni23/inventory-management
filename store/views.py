@@ -14,7 +14,7 @@ from .models import (
     Order,
     Delivery
 )
-
+# in this having a bug if i register and login it is take as a buyer its perfect do not change but its not shows in the orders buyer list why 
 # Import ONLY forms (NOT edit/delete views)
 from .forms import (
     SupplierForm,
@@ -108,9 +108,6 @@ def delete_supplier(request, pk):
     supplier.user.delete()  # deletes supplier + user
     return redirect('supplier-list')
 
-
-
-# ---------------- BUYER ----------------
 
 @login_required(login_url='login')
 @role_required('buyer')
@@ -329,9 +326,10 @@ def delete_product(request, pk):
 @login_required(login_url='login')
 @role_required('buyer')
 def create_order(request):
-    forms = OrderForm()
+    buyer, created = Buyer.objects.get_or_create(user=request.user, defaults={'name': request.user.username, 'address': ''})
+    forms = OrderForm(user=request.user, initial={'buyer': buyer.pk})
     if request.method == 'POST':
-        forms = OrderForm(request.POST)
+        forms = OrderForm(request.POST, user=request.user)
         if forms.is_valid():
             Order.objects.create(
                 supplier=forms.cleaned_data['supplier'],
